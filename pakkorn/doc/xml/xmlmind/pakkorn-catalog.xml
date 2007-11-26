@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<pakkorn 
+    xmlns="http://action.giss.ath.cx/schema/pakkorn/0.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://action.giss.ath.cx/schema/pakkorn/0.1 http://action.giss.ath.cx/schema/pakkorn/0.1/pakkorn.xsd"
+    version="0.1"
+>
+  <catalog>
+    <package idproj="...">
+      <version>...</version>
+      <fullname>...</fullname>
+      <description>...</description>
+      <items>
+        <item name="aliasname" href="..." type="value"></item>
+        <item name="otheraliasname" type="reference">
+          <regexp href="..." pattern="..."/>
+        </item>
+      </items>
+      <commands-set>
+        <commands commands-type="interactive-install">
+          <command line="${aliasname}..."/>
+          <command line="${otheraliasname}..."/>
+          <command line="..."/>
+        </commands>
+        <commands commands-type="uninstall">
+          <command uninstall-winname="..."/>
+        </commands>
+      </commands-set>
+      <categories>
+        <category>... :: ... :: ...</category>
+        <category>... :: ...</category>
+        <category>... :: ... :: ...</category>
+      </categories>
+      <icons>
+        <icon size="...x..." href="..."/>
+        <icon size="...x..." href="..."/>
+      </icons>
+      <properties>
+        <property name="homepage" value="..."/>
+        <property name="web-scm" value="..."/>
+        <property name="tracker" value="..."/>
+        <property name="bug-tracker" value="..."/>
+        <property name="feature-tracker" value="..."/>
+        <property name="request-tracker" value="..."/>
+        <property name="changelog" value="..."/>
+        <property name="editor" value="..."/>
+        <property name="author" value="..."/>
+        <property name="x-..." value="..."/>
+      </properties>
+    </package>
+    <package idproj="...">
+      <pakkorn-base href="..."/>
+    </package>
+    <package idproj="...">
+      <pakkorn-base href="..."/>
+      <version type="reference">
+        <regexp href="..." pattern="..."/>
+      </version>
+      <fullname type="reference">
+        <regexp href="..." pattern="..."/>
+      </fullname>
+      <description type="reference">
+        <regexp href="..." pattern="..."/>
+      </description>
+    </package>
+  </catalog>
+</pakkorn>

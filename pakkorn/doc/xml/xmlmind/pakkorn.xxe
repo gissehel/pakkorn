@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration name="Pakkorn"
+               xmlns="http://www.xmlmind.com/xmleditor/schema/configuration"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               xmlns:cfg="http://www.xmlmind.com/xmleditor/schema/configuration">
+  <detect>
+    <rootElementNamespace>http://action.giss.ath.cx/schema/pakkorn/0.1</rootElementNamespace>
+  </detect>
+
+  <css location="pakkorn.css" name="Style sheet"/>
+
+  <template location="pakkorn-package.xml" name="Package"/>
+  <template location="pakkorn-catalog.xml" name="Catalog"/>
+</configuration>

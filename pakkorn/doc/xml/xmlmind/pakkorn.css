@@ -1,0 +1,205 @@
+@namespace "http://www.w3.org/1999/xhtml";
+@import url(../config/xhtml/css/xhtml.css);
+@import url(../config/common/css/xmldata.css);
+
+@namespace xs "http://www.w3.org/2001/XMLSchema";
+@namespace html "http://www.w3.org/1999/xhtml";
+
+@namespace url(http://action.giss.ath.cx/schema/pakkorn/0.1);
+
+@property-value element-header-package(background)
+    element-header(
+        argument-list(
+            element-name(), 
+            " ", 
+            label(
+                attribute, 
+                idproj,
+                font-weight, 
+                bold
+            ), 
+            "  "
+        ), 
+        background
+    );
+
+@property-value element-header-catalog(background)
+    element-header(argument-list(element-name(), "  "), 
+                   background);
+
+package, catalog {
+    display: block;
+    collapsible: yes;
+    not-collapsible-head: 1;
+    border: 1 solid gray;
+    padding: 1;
+    margin: 8 4;
+}
+
+pakkorn > package:before {
+    content: element-header-package(#C0C0E0);
+}
+
+pakkorn > catalog:before {
+    content: element-header-catalog(#C0C0E0);
+}
+
+catalog > package:before {
+    content: element-header-package(#E0C0C0);
+}
+
+package {
+    border: 1 solid red;
+}
+
+package,
+catalog,
+version,
+fullname,
+description,
+items,
+item,
+regexp,
+commands-set,
+commands,
+command,
+categories,
+category,
+icons,
+icon,
+properties,
+property,
+pakkorn-base,
+pakkorn {
+    display: block;
+    padding-top : 0.2em;
+    padding-bottom : 0.2em;
+    margin-left: 0.5em;
+    padding-left: 0.2em;
+    
+    margin-right: 0.5em;
+    padding-right: 0.2em;
+}
+
+pakkorn-base {
+    font-style: italic;
+    text-align: right;
+    content: content("Reference on ",label(attribute,href,text-decoration,underline,color,blue))
+}
+
+
+version:before {
+    font-weight: bold;
+    content: "Version: ";
+    color: black;
+}
+fullname:before {
+    font-weight: bold;
+    content: "Fullname: ";
+}
+description:before {
+    font-weight: bold;
+    content: "Description: "
+}
+
+regexp,
+item,
+command, 
+category, 
+icon,
+property {
+    background-color:#eee;
+}
+
+command[uninstall-winname]:before {
+    content: content("Windows uninstaller identifier : ",label(attribute,uninstall-winname,font-weight,bold,font-family,monospace));
+}
+
+property {
+    content: content(label(attribute,name,font-weight,bold)," = ",label(attribute,value,font-family,monospace));
+}
+
+command:before {
+    content: content(label(attribute,line,font-family,monospace));
+}
+
+item[type="value"] {
+    content: content(label(attribute,name,font-weight,bold),' : ',label(attribute,href,font-weight,bold,text-decoration,underline,color,blue))
+}
+
+item[type="reference"]:before {
+    content: content(label(attribute,name,font-weight,bold),' : ');
+}
+*[type="reference"] > regexp {
+    margin-left: 2em;
+    font-weight:normal;
+    color:black;
+    content: content('/',label(attribute,pattern,font-family,monospace,font-weight,bold),'/ in ',label(attribute,href,font-weight,bold,text-decoration,underline,color,blue))
+}
+
+category {
+    font-weight: bold;
+    font-size: 0.7em;
+    color: green;
+}
+
+properties:before {
+    font-weight: bold;
+    content: "Other properties: "
+}
+
+icon:before {
+    font-weight: bold;
+    content: content("Icon ",label(attribute,size,font-weight,normal)," : ");
+}
+
+icon {
+    content: content(label(attribute,href,font-weight,bold,text-decoration,underline,color,blue));
+}
+
+
+icons:before {
+    font-weight: bold;
+    content: "Icons: "
+}
+
+categories:before {
+    font-weight: bold;
+    content: "Categories : "
+}
+
+commands:before {
+    font-weight: bold;
+    content: content("Commands for : ",label(attribute,commands-type,font-family,monospace));
+}
+
+commands-set:before {
+    font-weight: bold;
+    content: "Commands : "
+}
+
+items:before {
+    font-weight: bold;
+    content: "Items: "
+}
+description {
+    font-weight: normal;
+}
+
+fullname {
+    font-weight: normal;
+}
+
+version {
+    font-weight: bold;
+    color: #f44;
+}
+
+package {
+    border : 1px solid black;
+    padding : 0;
+}
+
+package {
+    content: value-editor();
+}

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pakkorn 
+    version="0.1" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://action.giss.ath.cx/schema/pakkorn/0.1"
+    xsi:schemaLocation="http://action.giss.ath.cx/schema/pakkorn/0.1 http://action.giss.ath.cx/schema/pakkorn/0.1/pakkorn.xsd"
+>
+  <package idproj="@">
+    <version>@</version>
+    <fullname>@</fullname>
+
+    <description>@</description>
+
+    <items>
+      <item href="@" name="@" type="value" />
+
+      <item name="@" type="reference">
+        <regexp href="@" pattern="@" />
+      </item>
+    </items>
+
+    <commands-set>
+      <commands commands-type="install">
+        <command line="@" />
+        <command line="@" />
+        <command line="@" />
+      </commands>
+
+      <commands commands-type="interactive-install">
+        <command line="@" />
+        <command line="@" />
+      </commands>
+
+      <commands commands-type="uninstall">
+        <command uninstall-winname="@" />
+      </commands>
+    </commands-set>
+
+    <categories>
+      <category>@ :: @</category>
+      <category>@ :: @ :: @</category>
+      <category>@ :: @</category>
+    </categories>
+
+    <icons>
+      <icon href="@" size="@x@" />
+    </icons>
+
+    <properties>
+      <property name="homepage" value="@" />
+      <property name="x-@" value="@" />
+    </properties>
+  </package>
+</pakkorn>

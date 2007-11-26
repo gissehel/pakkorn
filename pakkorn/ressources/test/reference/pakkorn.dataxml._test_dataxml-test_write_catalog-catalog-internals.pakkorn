@@ -1,0 +1,105 @@
+<?xml version="1.0" ?>
+<pakkorn>
+	<catalog>
+		<package idproj="poide">
+			<version type="value">
+				3.3.6
+			</version>
+			<fullname type="value">
+				The test package
+			</fullname>
+			<description type="value">
+				This text contains a full description of the package
+This is another line for the description.
+Last line.
+			</description>
+			<items>
+				<item href="http://poide.praf/pido/panf" name="itemname" type="value"/>
+				<item name="itemnameref" type="reference">
+					<regexp href="http://poide.praf/pido/pluf" pattern="begin(.*?)end"/>
+				</item>
+			</items>
+			<commands-set>
+				<commands commands-type="install">
+					<command line="${itemname} --silent"/>
+					<command line="${itemnameref} --next_command_line"/>
+					<command line="${itemname} --end_install"/>
+				</commands>
+				<commands commands-type="uninstall">
+					<command uninstall-winname="poide_registry"/>
+				</commands>
+			</commands-set>
+			<categories>
+				<category>
+					Development Status :: 0 - Nothing
+				</category>
+				<category>
+					Programming Language :: Python
+				</category>
+				<category>
+					Test :: Test Item :: Test Catergory
+				</category>
+			</categories>
+			<icons>
+				<icon href="http://poide.praf/pido/img/icon16.png" size="16x16"/>
+				<icon href="http://poide.praf/pido/img/icon32.png" size="32x32"/>
+				<icon href="http://poide.praf/pido/img/icon64.png" size="64x64"/>
+			</icons>
+			<properties>
+				<property name="homepage" value="http://poide.praf/pido/"/>
+				<property name="x-random-property" value="blu"/>
+			</properties>
+			<internals/>
+		</package>
+		<package idproj="grut">
+			<version type="value">
+				3.3.6
+			</version>
+			<fullname type="value">
+				The test package
+			</fullname>
+			<description type="value">
+				This text contains a full description of the package
+This is another line for the description.
+Last line.
+			</description>
+			<items>
+				<item href="http://poide.praf/pido/panf" name="itemname" type="value"/>
+				<item name="itemnameref" type="reference">
+					<regexp href="http://poide.praf/pido/pluf" pattern="begin(.*?)end"/>
+				</item>
+			</items>
+			<commands-set>
+				<commands commands-type="install">
+					<command line="${itemname} --silent"/>
+					<command line="${itemnameref} --next_command_line"/>
+					<command line="${itemname} --end_install"/>
+				</commands>
+				<commands commands-type="uninstall">
+					<command uninstall-winname="poide_registry"/>
+				</commands>
+			</commands-set>
+			<categories>
+				<category>
+					Development Status :: 0 - Nothing
+				</category>
+				<category>
+					Programming Language :: Python
+				</category>
+				<category>
+					Test :: Test Item :: Test Catergory
+				</category>
+			</categories>
+			<icons>
+				<icon href="http://poide.praf/pido/img/icon16.png" size="16x16"/>
+				<icon href="http://poide.praf/pido/img/icon32.png" size="32x32"/>
+				<icon href="http://poide.praf/pido/img/icon64.png" size="64x64"/>
+			</icons>
+			<properties>
+				<property name="homepage" value="http://poide.praf/pido/"/>
+				<property name="x-random-property" value="blu"/>
+			</properties>
+			<internals/>
+		</package>
+	</catalog>
+</pakkorn>

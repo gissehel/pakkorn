@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+    elementFormDefault="qualified"
+    targetNamespace="http://action.giss.ath.cx/schema/pakkorn/0.3"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:kk="http://action.giss.ath.cx/schema/pakkorn/0.3"
+>
+
+  <!--==================================================================-->
+  <xs:simpleType name="NonEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:pattern value=".+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="General.ProjectName">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-z_\-]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="General.Url">
+    <xs:restriction base="xs:anyURI"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="General.Type">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="reference" />
+      <xs:enumeration value="value" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="General.Pattern">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="General.Container">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="General.SizeIxI">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]+x[0-9]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="General.PropertyName">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:NMTOKEN">
+          <xs:enumeration value="homepage" />
+          <xs:enumeration value="web-scm" />
+          <xs:enumeration value="tracker" />
+          <xs:enumeration value="bug-tracker" />
+          <xs:enumeration value="feature-tracker" />
+          <xs:enumeration value="request-tracker" />
+          <xs:enumeration value="changelog" />
+          <xs:enumeration value="editor" />
+          <xs:enumeration value="author" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="x-.*"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+
+  <!--==================================================================-->
+
+  <!--==================================================================-->
+  <xs:simpleType name="Pakkorn.Version">
+    <xs:restriction base="kk:NonEmptyString"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Package.IdProj">
+    <xs:restriction base="kk:NonEmptyString"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Version.Value">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Fullname.Value">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Description.Value">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Item.Name">
+    <xs:restriction base="kk:General.ProjectName"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Item.Href">
+    <xs:restriction base="kk:General.Url"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Regexp.Pattern">
+    <xs:restriction base="kk:General.Pattern"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Regexp.Container">
+    <xs:restriction base="kk:General.Container"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Command.Line">
+    <xs:restriction base="kk:NonEmptyString"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Command.Uninstall-winname">
+    <xs:restriction base="kk:NonEmptyString"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Commands.Commands-Type">
+    <xs:restriction base="kk:NonEmptyString"/>
+  </xs:simpleType>
+
+  <!-- <xs:simpleType name="Categories.Category">       -->
+  <!--   <xs:restriction base="kk:NonEmptyString"/>     -->
+  <!-- </xs:simpleType>                                 -->
+
+  <xs:simpleType name="Icon.Size">
+    <xs:restriction base="kk:General.SizeIxI"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Properties.Property.Name">
+    <xs:restriction base="kk:General.PropertyName"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="Properties.Property.Value">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <!--==================================================================-->
+
+  <!--==================================================================-->
+  <xs:complexType name="Regexp">
+    <xs:attribute name="href" type="kk:General.Url" use="required"/>
+    <xs:attribute name="pattern" type="kk:Regexp.Pattern" use="required"/>
+    <xs:attribute name="container" type="kk:Regexp.Container"/>
+  </xs:complexType>
+
+  <xs:complexType name="Version" mixed="true">
+    <xs:sequence maxOccurs="1" minOccurs="0">
+      <xs:element name="regexp" type="kk:Regexp"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="kk:General.Type" default="value"/>
+  </xs:complexType>
+
+  <xs:complexType name="Fullname" mixed="true">
+    <xs:sequence maxOccurs="1" minOccurs="0">
+      <xs:element name="regexp" type="kk:Regexp"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="kk:General.Type" default="value"/>
+  </xs:complexType>
+
+  <xs:complexType name="Description" mixed="true">
+    <xs:sequence maxOccurs="1" minOccurs="0">
+      <xs:element name="regexp" type="kk:Regexp"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="kk:General.Type" default="value"/>
+  </xs:complexType>
+
+  <xs:complexType name="Item">
+    <xs:sequence maxOccurs="1" minOccurs="0">
+      <xs:element name="regexp" type="kk:Regexp"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="kk:Item.Name" use="required"/>
+    <xs:attribute name="href" type="kk:Item.Href"/>
+    <xs:attribute name="type" type="kk:General.Type" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="Items">
+    <xs:sequence maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="item" type="kk:Item"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Properties.Property">
+    <xs:attribute name="name" type="kk:Properties.Property.Name" use="required"/>
+    <xs:attribute name="value" type="kk:Properties.Property.Value" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="Properties">
+    <xs:sequence maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="property" type="kk:Properties.Property"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Icon">
+    <xs:attribute name="href" type="kk:General.Url" use="required"/>
+    <xs:attribute name="size" type="kk:Icon.Size" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="Icons">
+    <xs:sequence maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="icon" type="kk:Icon"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Categories.Category" mixed="true" />
+   
+  <xs:complexType name="Categories">
+    <xs:sequence maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="category" type="kk:Categories.Category"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Command">
+    <xs:attribute name="line" type="kk:Command.Line"/>
+    <xs:attribute name="uninstall-winname" type="kk:Command.Uninstall-winname"/>
+  </xs:complexType>
+
+  <xs:complexType name="Commands">
+    <xs:sequence maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="command" type="kk:Command"/>
+    </xs:sequence>
+    <xs:attribute name="commands-type" type="kk:Commands.Commands-Type"/>
+  </xs:complexType>
+
+  <xs:complexType name="Commands-Set">
+    <xs:sequence maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="commands" type="kk:Commands"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PakkornBase">
+    <xs:attribute name="href" type="kk:General.Url" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="Package">
+    <xs:sequence maxOccurs="unbounded" minOccurs="1">
+        <xs:element maxOccurs="1" minOccurs="0" name="pakkorn-base" type="kk:PakkornBase"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="version" type="kk:Version"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="fullname" type="kk:Fullname"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="description" type="kk:Description"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="items" type="kk:Items"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="commands-set" type="kk:Commands-Set"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="categories" type="kk:Categories"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="icons" type="kk:Icons"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="properties" type="kk:Properties"/>
+    </xs:sequence>
+    <xs:attribute name="idproj" type="kk:Package.IdProj" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="Catalog">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="package"
+                  type="kk:Package"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!--==================================================================-->
+
+  <!--==================================================================-->
+  <xs:element name="pakkorn">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="catalog" type="kk:Catalog"/>
+        <xs:element name="package" type="kk:Package"/>
+      </xs:choice>
+      <xs:attribute name="version" type="kk:Pakkorn.Version" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <!--==================================================================-->
+</xs:schema>
