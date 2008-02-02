@@ -15,11 +15,11 @@ class Error(object) :
     TOO_MANY_PACKAGES_FOUND = "Too many packages found"
     NOT_IMPLEMENTED = "Not implemented"
     PROBLEM_DOWNLOADING = "There is a problem downloading a file"
-    
+
 
 class Engine(object) :
     """Main pakkorn engine"""
-    
+
     def __init__(self,config) :
         self._config = config
         self._working_dir = os.path.join(self._config['userdatapath'])
@@ -31,15 +31,16 @@ class Engine(object) :
         for dirname in (self._database_dir,self._download_dir,self._cache_dir) :
             if not(os.path.exists(dirname)) :
                 os.makedirs(dirname)
-                
+
         self._database_instance = None
         self._web_downloader = WebDownloader(self._config,cache=self._cache_dir)
-        
+        self._reference_problem = False
+
     def _database(self) :
         if self._database_instance is None :
             self._database_instance = Database(self._database_dir)
         return self._database_instance
-        
+
     def update(self) :
         '''Update de database catalog'''
         uri = self._get_update_uri()
@@ -51,7 +52,7 @@ class Engine(object) :
         xml = Xml(filename=filename)
         catalog = xml.read()
         self._database().update(catalog)
-        
+
         self._web_downloader.expire(uri)
 
     def search(self,search_string,categorie=None,hascategorie=None) :
@@ -77,7 +78,7 @@ class Engine(object) :
             multifilters.add_filter(hascategorie=hascategorie)
 
         return self._database().search(multifilters)
-        
+
     def show(self,search_string,version=None) :
         multifilters = MultiFilters()
         multifilters.add_filter(idproj=search_string)
@@ -116,12 +117,12 @@ class Engine(object) :
         for package in packages :
             if not(package.has_commands(commands_name)) :
                 error = "Don't know how to %s %s version %s" % (commands_name,package.get_idproj(),package.get_version())
-            
-        if error is None : 
+
+        if error is None :
             error = self._download(usage=commands_name,*packages)
-            if error is None : 
+            if error is None :
                 items = self._get_item_informations(usage=commands_name,*packages)
-                for package in packages : 
+                for package in packages :
                     if not(self._exec_commands(commands_name,package,items)) :
                         error = "Can't %s %s version %s" % (commands_name,package.get_idproj(),package.get_version())
                         break
@@ -167,9 +168,9 @@ class Engine(object) :
         commands = package.get_commands(commands_name)
         idproj = str(package.get_idproj())
         version = str(package.get_version())
-        
+
         status_result = True
-        
+
         local_items = {}
         for itemname in items[(idproj,version)] :
             local_items[itemname] = items[(idproj,version)][itemname]['itemfilename']
@@ -178,7 +179,7 @@ class Engine(object) :
             command = str(command).replace('%','%%')
             for variable in list(RE_VARIABLE.findall(command)) :
                 command = command.replace("${%s}"%variable,'"%%(%s)s"'%variable)
-            
+
             status_result = self._exec(command % local_items)
             if not(status_result) :
                 break
@@ -192,7 +193,7 @@ class Engine(object) :
             self._database().change(package)
 
         return status_result
-        
+
     def _exec(self,command_line) :
         # print "EXEC:[%s]" % (command_line,)
         handle = os.popen(command_line)
@@ -232,113 +233,120 @@ class Engine(object) :
         return items
     def upgrade(self) :
         pass
-        
+
     def aggregate(self,uri,output_filename) :
-        download_id = self._web_downloader.add_donwload(uri)
-        self._web_downloader.wait(download_id)
-        filename = self._web_downloader.get_filename(download_id)
+        try :
+            download_id = self._web_downloader.add_donwload(uri)
+            self._web_downloader.wait(download_id)
+            filename = self._web_downloader.get_filename(download_id)
 
-        xml = Xml(filename=filename)
-        catalog = xml.read()
+            xml = Xml(filename=filename)
+            catalog = xml.read()
 
-        new_catalog = Catalog()
+            new_catalog = Catalog()
 
-        for package in catalog :
-            new_package = package.clone()
-            idproj = package.get_idproj()
-            
-            base_url = new_package.get_base_url()
+            for package in catalog :
+                new_package = package.clone()
+                idproj = package.get_idproj()
 
-            base_urls = set()
-            
-            while base_url is not None :
-                
-                new_package.set_base_url(None)
-                
-                if (base_url is not None) and (base_url not in base_urls):
-                    base_package = None
-
-                    base_urls.add(base_url)
-
-                    download_id = self._web_downloader.add_donwload(base_url)
-                    self._web_downloader.wait(download_id)
-                    filename = self._web_downloader.get_filename(download_id)
-                    
-                    if filename is not None :
-                        xml = Xml(filename=filename)
-                        pakkorn_element = xml.read()
-                        self._web_downloader.expire(base_url)
-                        
-                        if isinstance(pakkorn_element,Catalog) :
-                            if idproj in pakkorn_element :
-                                # TODO : decide what to do when len(list(pakkorn_element.iter_idproj(idproj))) > 1
-                                base_package = list(pakkorn_element.iter_idproj(idproj))[0]
-                            else :
-                                # TODO : else what ?
-                                pass
-                        elif isinstance(pakkorn_element,Package) :
-                            if pakkorn_element.get_idproj() == idproj :
-                                base_package = pakkorn_element
-                            else :
-                                # TODO : else what ?
-                                pass
-                        if base_package is not None :
-                            if new_package.get_version() is None :
-                                new_package.set_version(base_package.get_version())
-                            if new_package.get_fullname() is None :
-                                new_package.set_fullname(base_package.get_fullname())
-                            if new_package.get_description() is None :
-                                new_package.set_description(base_package.get_description())
-                        
-                            if len(list(new_package.iter_itemnames()))==0 :
-                                for itemname in base_package.iter_itemnames() :
-                                    new_package.set_item(itemname,base_package.get_item(itemname))
-                        
-                            if len(list(new_package.iter_commands_names()))==0 :
-                                for commands_name in base_package.iter_commands_names() :
-                                    new_package.set_commands(commands_name,base_package.get_commands(commands_name))
-                        
-                            if len(list(new_package.iter_categories()))==0 :
-                                for category in base_package.iter_categories() :
-                                    new_package.add_category(category)
-                        
-                            if len(list(new_package.iter_iconsizes()))==0 :
-                                for size in base_package.iter_iconsizes() :
-                                    new_package.set_icon(size,base_package.get_icon(size))
-                        
-                            if len(list(new_package.iter_properties()))==0 :
-                                for property in base_package.iter_properties() :
-                                    new_package.set_property(property,base_package.get_property(property))
-                        
-                            if new_package.get_base_url() is None :
-                                new_package.set_base_url(base_package.get_base_url())
-                        
-                        else :
-                            # TODO : else what ?
-                            pass
-                        
                 base_url = new_package.get_base_url()
 
-            version = self.get_unreferenced_string(new_package.get_version())
-            fullname = self.get_unreferenced_string(new_package.get_fullname())
-            description = self.get_unreferenced_string(new_package.get_description())
+                base_urls = set()
 
-            new_package.set_version(version)
-            new_package.set_fullname(fullname)
-            new_package.set_description(description)
+                while base_url is not None :
 
-            for itemname in new_package.iter_itemnames() :
-                item = self.get_unreferenced_string(new_package.get_item(itemname))
-                new_package.set_item(itemname,item)
+                    new_package.set_base_url(None)
 
-            new_catalog.add_package(new_package)
+                    if (base_url is not None) and (base_url not in base_urls):
+                        base_package = None
 
-        
-        xml = Xml(filename=output_filename)
-        xml.write(new_catalog)
-        
-        self._web_downloader.clean()
-            
+                        base_urls.add(base_url)
+
+                        download_id = self._web_downloader.add_donwload(base_url)
+                        self._web_downloader.wait(download_id)
+                        filename = self._web_downloader.get_filename(download_id)
+
+                        if filename is not None :
+                            xml = Xml(filename=filename)
+                            pakkorn_element = xml.read()
+                            self._web_downloader.expire(base_url)
+
+                            if isinstance(pakkorn_element,Catalog) :
+                                if idproj in pakkorn_element :
+                                    # TODO : decide what to do when len(list(pakkorn_element.iter_idproj(idproj))) > 1
+                                    base_package = list(pakkorn_element.iter_idproj(idproj))[0]
+                                else :
+                                    # TODO : else what ?
+                                    pass
+                            elif isinstance(pakkorn_element,Package) :
+                                if pakkorn_element.get_idproj() == idproj :
+                                    base_package = pakkorn_element
+                                else :
+                                    # TODO : else what ?
+                                    pass
+                            if base_package is not None :
+                                if new_package.get_version() is None :
+                                    new_package.set_version(base_package.get_version())
+                                if new_package.get_fullname() is None :
+                                    new_package.set_fullname(base_package.get_fullname())
+                                if new_package.get_description() is None :
+                                    new_package.set_description(base_package.get_description())
+
+                                if len(list(new_package.iter_itemnames()))==0 :
+                                    for itemname in base_package.iter_itemnames() :
+                                        new_package.set_item(itemname,base_package.get_item(itemname))
+
+                                if len(list(new_package.iter_commands_names()))==0 :
+                                    for commands_name in base_package.iter_commands_names() :
+                                        new_package.set_commands(commands_name,base_package.get_commands(commands_name))
+
+                                if len(list(new_package.iter_categories()))==0 :
+                                    for category in base_package.iter_categories() :
+                                        new_package.add_category(category)
+
+                                if len(list(new_package.iter_iconsizes()))==0 :
+                                    for size in base_package.iter_iconsizes() :
+                                        new_package.set_icon(size,base_package.get_icon(size))
+
+                                if len(list(new_package.iter_properties()))==0 :
+                                    for property in base_package.iter_properties() :
+                                        new_package.set_property(property,base_package.get_property(property))
+
+                                if new_package.get_base_url() is None :
+                                    new_package.set_base_url(base_package.get_base_url())
+
+                            else :
+                                # TODO : else what ?
+                                pass
+
+                    base_url = new_package.get_base_url()
+
+                self._reference_problem = False
+                version = self.get_unreferenced_string(new_package.get_version())
+                fullname = self.get_unreferenced_string(new_package.get_fullname())
+                description = self.get_unreferenced_string(new_package.get_description())
+
+                new_package.set_version(version)
+                new_package.set_fullname(fullname)
+                new_package.set_description(description)
+
+                for itemname in new_package.iter_itemnames() :
+                    item = self.get_unreferenced_string(new_package.get_item(itemname))
+                    if item is not None :
+                        new_package.set_item(itemname,item)
+
+                if self._reference_problem :
+                    # TODO : Add the package from the previous aggregation with a special property
+                    self.log("There is a problem in the package '%s' : package not added" % (idproj,))
+                else :
+                    new_catalog.add_package(new_package)
+
+
+            xml = Xml(filename=output_filename)
+            xml.write(new_catalog)
+        finally :
+            self._web_downloader.clean()
+
     def get_unreferenced_string(self,referencable_string) :
         unreferenced_string = None
 
@@ -346,31 +354,41 @@ class Engine(object) :
             if referencable_string.is_reference() :
                 unreferenced_string = None
                 url,pattern = referencable_string.get_reference()
-            
+
                 download_id = self._web_downloader.add_donwload(url)
                 self._web_downloader.wait(download_id)
                 filename = self._web_downloader.get_filename(download_id)
+                web_page = ""
 
-                if filename :           
+                if filename :
                     handle = open(filename,'rb')
                     web_page = handle.read()
                     handle.close()
-                
+
                 values = re.findall(pattern,web_page)
                 # TODO : Handle the case where len(values) == 0
                 # TODO : Decide what to do when len(values) > 1
-                
+
                 if len(values) > 0 :
                     if referencable_string.get_reference_container() is None :
                         unreferenced_string = values[0]
                     else :
                         unreferenced_string = referencable_string.get_reference_container() % (values[0],)
+                else :
+                    self.log("No pattern '%s' found at '%s'" % (pattern,url))
+                    self._reference_problem = True
 
                 self._web_downloader.expire(url)
             else :
                 unreferenced_string = referencable_string.get_string()
+        else :
+            self.log("Can't unreference None")
+            self._reference_problem = True
 
         return unreferenced_string
+
+    def log(self,message):
+        print message
 
     def _get_update_uri(self) :
         #Mok !
@@ -382,6 +400,6 @@ class Engine(object) :
 def test():
     e = Engine(None)
     e.update()
-    
+
 if __name__=="__main__" :
     test()

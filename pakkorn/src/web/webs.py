@@ -57,13 +57,12 @@ class WebUrllib(object) :
 
 class WebUrllib2(object) :
     _default_result = None
-    
+
     def __init__( self, agent = DEFAULT_AGENT, http_proxy=None ) :
         self._agent = agent
 
         openers = []
 
-        proxy_support = None
         if http_proxy is not None :
             # Look like urllib2 default proxy works better than ConnectHTTPHandler
             #openers.append(ConnectHTTPHandler(proxy="%s:%s" % (http_proxy[0],http_proxy[1]),debuglevel=1))

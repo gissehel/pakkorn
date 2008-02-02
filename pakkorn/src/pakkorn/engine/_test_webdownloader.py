@@ -1,4 +1,4 @@
-from pakkorn.engine import web_downloader
+from pakkorn.engine import WebDownloader
 
 from pakkorn.test.testutils import get_test_full_path
 from pakkorn.test.testutils import apply_assert_on_file
@@ -65,33 +65,36 @@ class DownloadHandler(object) :
 
         self._reason = reason
         self._ended = True
-        
+
 class TestWebDownloader(TestCase) :
     class_dir_prefix = [__module__]
     def test_creation(self) :
-        web_downloader
+        web_downloader = WebDownloader()
         self.assertNotEqual(web_downloader,None)
+        web_downloader = None
 
     def _test_download(self,file,dir_test) :
+        web_downloader = WebDownloader()
         url = urllib2.posixpath.join(get_test_root_uri(),'test',file)
         handler = DownloadHandler(url=url,testcase=self)
         handler.start_download(web_downloader,output_dir=dir_test)
         # Let's wait 3 seconds
         for trying in xrange(5) :
+            trying # unused
             if handler.ended() :
                 break
             # 1 second
             time.sleep(1)
 
         self.assertEqual(handler.ended(),True)
-        
+        web_downloader = None
         return handler
 
     def test_download_image(self) :
         self.set_test_path( 'test_download_image', use_dir=True, clean=True )
         handler = self._test_download('imagetest.gif',self.get_full_test_path())
         self.assertFileIsReference(handler._download_id)
-        
+
     def test_download_audio(self) :
         self.set_test_path( 'test_download_audio', use_dir=True, clean=True )
         handler = self._test_download('audiotest.au',self.get_full_test_path())

@@ -9,12 +9,12 @@ from pakkorn.config import register_key
 class ThreadDownloader(threading.Thread) :
     def __init__(self,download_id,url,filename,manager) :
         super(ThreadDownloader,self).__init__()
-        
+
         http_proxy = None
         if manager._config['proxy'] is not None :
             http_proxy = manager._config['proxy'].split(':')
-        
-        self._web = Web()
+
+        self._web = Web(http_proxy=http_proxy)
         self._download_id = None
         self._url = None
         self._filename = None
@@ -37,11 +37,11 @@ class ThreadDownloader(threading.Thread) :
 
     def reinit(self,download_id,url,filename) :
         self._change_continuation(download_id=download_id,url=url,filename=filename,continuation=True)
-        
+
     def end(self) :
         self._change_continuation(continuation=False)
-        
-    def active(self) :  
+
+    def active(self) :
         self._continuation_condition.acquire()
         result = self._active
         self._continuation_condition.release()
@@ -51,7 +51,7 @@ class ThreadDownloader(threading.Thread) :
     def run(self) :
         while True :
             self._continuation_condition.acquire()
-            
+
             while self._continuation and self._download_id is None :
                 self._continuation_condition.wait()
 
@@ -65,24 +65,24 @@ class ThreadDownloader(threading.Thread) :
             if not(continuation) :
                 break
             if download_id is not None :
-                
+
                 self._continuation_condition.acquire()
                 self._active = True
                 self._continuation_condition.release()
 
                 self._manager.on_start_download(download_id,thread=self)
-                
+
                 result = self._web.get(url,file=filename)
-                
+
                 success = result is not None
-                
+
                 self._continuation_condition.acquire()
                 self._download_id = None
                 self._filename = None
                 self._url = None
                 self._active = False
                 self._continuation_condition.release()
-                
+
                 self._manager.on_stop_download(download_id,success=success,thread=self)
 
 
@@ -90,22 +90,22 @@ class ThreadDownloader(threading.Thread) :
 
 class WebDownloader(object) :
 
-    instance = None    
-    
+    instance = None
+
     def __init__(self,config=None,cache=None) :
         '''Constuctor'''
-        
+
         if cache is None :
             cache = os.path.join('.','__cache__')
-        
+
         self._max_downloads = 5
         self._max_downloads_per_site = 1
         self._config = config
-        
+
         for parameter in ('max_downloads','max_downloads_per_site') :
-            if self._config is not None and parameter in self._config : 
+            if self._config is not None and parameter in self._config :
                 setattr(self,'_'+parameter,self._config[parameter])
-        
+
         self._output_dir = cache
         self._index_dir = os.path.join(self._output_dir,'__index__')
         self._downloads_condition = threading.Condition()
@@ -124,22 +124,22 @@ class WebDownloader(object) :
     def _create_download_id(self,url) :
         return sha.new(url).hexdigest()
 
-    def add_donwload(self,url,priority=0,on_end=None,output_file=None,output_dir=None,on_fail=None) : 
+    def add_donwload(self,url,priority=0,on_end=None,output_file=None,output_dir=None,on_fail=None) :
         '''Add a new download to the manager. The download can start at the discretion of the manager.
-           The manager decide to download the file to the 'output_file' if given. If not, he decide to 
-           download the file using the filename provided by the server or by the url into the 'output_dir' 
-           if given. If both of them are missing, he decide to download it to any location that the 
-           manager thinks great, and remember that location. Once the download is finished, the callback 
+           The manager decide to download the file to the 'output_file' if given. If not, he decide to
+           download the file using the filename provided by the server or by the url into the 'output_dir'
+           if given. If both of them are missing, he decide to download it to any location that the
+           manager thinks great, and remember that location. Once the download is finished, the callback
            'on_end' is called (if given). If the download fail, the callback on_fail is called.
-           
-           
+
+
            on_end(download_id,url,local_file)
 
            on_fail(download_id,url,reason)
-           
+
            add_download returns a download_id used for other operations.
            '''
-        
+
         if output_dir is None :
             output_dir = self._output_dir
         if not(os.path.exists(output_dir)) :
@@ -153,7 +153,7 @@ class WebDownloader(object) :
 
         self._downloads_condition.acquire()
         self._downloads[download_id] = {'cache':{},'dynamic':{}}
-        
+
         self._downloads[download_id]['cache']['url'] = url
         self._downloads[download_id]['cache']['filename'] = filename
         self._downloads[download_id]['cache']['download_id'] = download_id
@@ -162,7 +162,7 @@ class WebDownloader(object) :
         self._downloads[download_id]['dynamic']['on_fail'] = on_fail
         self._downloads[download_id]['dynamic']['end_condition'] = threading.Condition()
         self._downloads_condition.release()
-        
+
         self._save_cache_index_entry(download_id)
 
         self._threads_condition.acquire()
@@ -179,11 +179,11 @@ class WebDownloader(object) :
         self._threads_condition.release()
 
         # download_thread.run()
-        
+
         # web = Web()
-        # 
+        #
         # result = web.get(url,file=filename)
-        # 
+        #
         # if result is None :
         #     on_fail(download_id,url,'Failed downloading %s' % (url,))
         # else :
@@ -192,17 +192,17 @@ class WebDownloader(object) :
         return download_id
 
     def iter_downloads(self) :
-        '''Returns a dictonnary for each download in the manager (currently queued file, currently downloading file, 
+        '''Returns a dictonnary for each download in the manager (currently queued file, currently downloading file,
            or already downloaded file still in the manager).'''
 
         self._downloads_condition.acquire()
         iterkeys = self._downloads.keys()
         self._downloads_condition.release()
 
-        return iter(self._downloads.keys())
-        
+        return iter(iterkeys)
+
     def abort_download(self,download_id) :
-        '''Abort a download using a download_id provided by other methods. the on_fail provided 
+        '''Abort a download using a download_id provided by other methods. the on_fail provided
            to add_download is called using "abort" as reason.'''
 
     def set_max_downloads(self, max_downloads) :
@@ -212,7 +212,7 @@ class WebDownloader(object) :
     def set_max_downloads_per_site(self, max_downloads_per_site) :
         '''Change the maximum concurrent downloads per site'''
         self._max_downloads_per_site = max_downloads_per_site
-        
+
     def on_start_download(self,download_id,thread) :
         self._downloads_condition.acquire()
         self._downloads[download_id]['cache']['status'] = 'started'
@@ -274,7 +274,7 @@ class WebDownloader(object) :
         status_string += "\nEnd Inactive threads\n"
         self._downloads_condition.release()
         self._threads_condition.release()
-        
+
         return status_string
 
     def test_remove_waiting_thread(self) :
@@ -285,11 +285,11 @@ class WebDownloader(object) :
             thread = self._waiting_threads.pop(0)
             name = thread.getName()
             thread.end()
-        
+
         self._threads_condition.release()
         return name
-        
-        
+
+
     def _save_cache_index(self) :
         for download_id in self.iter_downloads() :
             self._save_cache_index_entry(download_id)
@@ -333,7 +333,7 @@ class WebDownloader(object) :
         for thread in list(self._waiting_threads) :
             thread.end()
         self._threads_condition.release()
-        
+
     def get_filename(self,download_id) :
         filename = None
         self._downloads_condition.acquire()
@@ -348,7 +348,7 @@ class WebDownloader(object) :
         download = None
 
         self._downloads_condition.acquire()
-        
+
         if download_id in self._downloads :
             status = self._downloads[download_id]['cache']['status']
             if status in ('downloaded','aborted') :

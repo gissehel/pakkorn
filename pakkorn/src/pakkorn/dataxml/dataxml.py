@@ -31,7 +31,7 @@ class Xml(object) :
     def __init__(self,filename=None,internals=False) :
         self._filename = filename
         self._internals = internals
-        
+
     def get_filename(self) :
         return self._filename
 
@@ -53,21 +53,21 @@ class Xml(object) :
             raise ParsingError('You must either read a content, or a filename')
 
         rootname = document.childNodes[0].nodeName
-        
+
         if rootname != 'pakkorn' :
             raise ParsingError('this xml is not a pakkorn xml')
 
         package_or_catalog_roots = filterout_textnode(document.childNodes[0].childNodes)
-        
+
         if (len(package_or_catalog_roots) != 1) or (package_or_catalog_roots[0].nodeName not in ('package','catalog')) :
             raise ParsingError('pakkorn xml file should contain either one and only one catalog, either one and only one package')
 
         package_or_catalog_rootname = package_or_catalog_roots[0].nodeName
-        
-        if package_or_catalog_rootname == 'package' : 
+
+        if package_or_catalog_rootname == 'package' :
             return self._read_package(package_or_catalog_roots[0])
-            
-        if package_or_catalog_rootname == 'catalog' : 
+
+        if package_or_catalog_rootname == 'catalog' :
             return self._read_catalog(package_or_catalog_roots[0])
 
         ParsingError('Logical error : We should never see that error')
@@ -79,7 +79,7 @@ class Xml(object) :
             container = subnode.getAttribute('container')
             if container != '' :
                 result.set_reference_container(container)
-        if result is None : 
+        if result is None :
             result_string = ''
             if value_attribute is None :
                 for subnode in node.childNodes :
@@ -96,7 +96,7 @@ class Xml(object) :
             idproj = package_node.getAttribute('idproj')
 
         package = Package(idproj=idproj)
-        
+
         for node in filterout_textnode(package_node.childNodes) :
             if node.nodeName == 'pakkorn-base' :
                 package.set_base_url(node.getAttribute('href'))
@@ -128,7 +128,7 @@ class Xml(object) :
                         if subnode.nodeType == subnode.TEXT_NODE :
                             category = subnode.data.strip(' \t\r\n')
                     package.add_category(category)
-                        
+
             elif node.nodeName == 'icons' :
                 for icon_node in filterout_node(node.childNodes,'icon') :
                     href = icon_node.getAttribute('href')
@@ -153,7 +153,7 @@ class Xml(object) :
                 # ParsingError ? Or ignore ? "Be strict in what you send, but generous in what you receive", so let's be generous...
                 # ... for this time.
                 pass
-        
+
         return package
 
     def _read_catalog(self,catalog_node) :
@@ -169,7 +169,7 @@ class Xml(object) :
         if not(isinstance(pakkorn,Package)) or not(isinstance(pakkorn,Catalog))  :
             ValueError('pakkorn should be a package or a catalog')
 
-        if self._filename is None : 
+        if self._filename is None :
             ValueError('A filename should be provided for the pakkorn XML file')
 
         document = minidom.Document()
@@ -188,19 +188,19 @@ class Xml(object) :
 
         if isinstance(pakkorn,Catalog) :
             self._write_catalog(catalog=pakkorn,node=pakkorn_node)
-            
+
         handle = open(self._filename,'wt')
         handle.write(document.toprettyxml())
         handle.close()
 
     def _write_referencablestring( self, node, nodename, referencablestring, value_attribute = None ) :
         document = node.ownerDocument
-        
+
         if referencablestring is None :
             return
 
         subnode = document.createElement(nodename)
-        
+
         if referencablestring.is_string() :
             if value_attribute is None :
                 textnode = document.createTextNode(referencablestring.get_string())
@@ -223,13 +223,13 @@ class Xml(object) :
 
         node.appendChild(subnode)
         return subnode
-    
+
     def _write_package(self, package, node) :
         document = node.ownerDocument
-        
+
         node_package = document.createElement('package')
         node.appendChild(node_package)
-        
+
         idproj = package.get_idproj()
         if idproj is not None :
             node_package.setAttribute('idproj',idproj)
@@ -238,7 +238,7 @@ class Xml(object) :
         if base_url is not None :
             node_base_url = document.createElement('pakkorn-base')
             node_base_url.setAttribute('href',base_url)
-            node_package.appendChild(subnode)
+            node_package.appendChild(node_base_url)
 
         version = package.get_version()
         if version is not None :
@@ -281,7 +281,7 @@ class Xml(object) :
             textnode = document.createTextNode(category)
             node_category.appendChild(textnode)
             node_categories.appendChild(node_category)
-            
+
         if len(node_categories.childNodes)>0 :
             node_package.appendChild(node_categories)
 
@@ -320,6 +320,6 @@ class Xml(object) :
 
         node_catalog = document.createElement('catalog')
         node.appendChild(node_catalog)
-        
+
         for package in catalog :
             self._write_package(package, node_catalog)

@@ -1,6 +1,4 @@
-from PyQt4.QtCore import Qt
 from PyQt4 import QtCore
-from PyQt4 import QtGui
 from pakkorn.gui.qt.pakkorn import PakkornMainWindowBase
 from pakkorn.gui.qt.pakkorn import start_application
 
@@ -27,21 +25,21 @@ class PakkornMainWindowTest(PakkornMainWindowBase):
 
     def refreshPackages(self) :
         self.detailWidget.clear()
-        
+
         currentCategorie = None
         hascategorie = None
-        
+
         currentCategorieItem = self.categoriesWidget.currentItem()
         if currentCategorieItem is not None :
-            currentCategorie = currentCategorieItem.text() 
+            currentCategorie = currentCategorieItem.text()
             if currentCategorie == self.CATEGORIE_ALL :
                 currentCategorie = None
             if currentCategorie == self.CATEGORIE_NONE :
                 currentCategorie = None
                 hascategorie = False
-            
+
         # print "[%s]" % currentCategorie
-        
+
         for package in self._engine.search(str(self.searchFilter.currentText()),categorie=currentCategorie,hascategorie=hascategorie) :
             self.addPackage([
                 package.get_internal('downloaded')=='true' and 'D' or ' ',
@@ -62,13 +60,13 @@ class PakkornMainWindowTest(PakkornMainWindowBase):
             self.addCategorie(self.CATEGORIE_NONE)
             for categorie in categories :
                 self.addCategorie(categorie)
-        
+
     def onCategorieChanged(self) :
         self.refreshPackages()
-    
+
     def onSearchChanged(self,newtext) :
         self.refreshPackages()
-    
+
     def onUpdate(self) :
         self._engine.update()
         self.refreshPackages()
