@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 import os
 
@@ -13,7 +14,7 @@ def clean_path(pathtoclean) :
     #for dirname in os.listdir(pathtoclean) :
     #    if dirname != '.svn' :
     #        os.removedirs(os.path.join(pathtoclean,dirname))
-    
+
 def clean() :
     clean_path(os.path.join('..','ressources','test','generate'))
     clean_path(os.path.join('__cache__'))

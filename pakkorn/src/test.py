@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import unittest
 from pakkorn.data._test_package import TestPackage
 from pakkorn.data._test_catalog import TestCatalog

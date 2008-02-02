@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from PyQt4 import QtCore
 from pakkorn.gui.qt.pakkorn import PakkornMainWindowBase
 from pakkorn.gui.qt.pakkorn import start_application
