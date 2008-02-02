@@ -2,27 +2,27 @@ from PyQt4.QtCore import Qt
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 import ui_pakkorn
-
+    
 class PakkornMainWindowBase(QtGui.QMainWindow, ui_pakkorn.Ui_Pakkorn):
     def __init__(self, parent=None):
         super(PakkornMainWindowBase, self).__init__(parent)
         self.setupUi(self)
-        
+
         headerItem = self.detailWidget.headerItem()
         self.setItemAlignement(headerItem)
-        
-        self.onCategorieChanged()
-        
-        for index in xrange(self.detailWidget.columnCount()) : 
+
+        self.on_categorie_changed()
+
+        for index in xrange(self.detailWidget.columnCount()) :
             self.detailWidget.resizeColumnToContents(index)
 
     def setItemAlignement(self, item) :
         item.setTextAlignment(0,Qt.AlignHCenter)
         item.setTextAlignment(1,Qt.AlignHCenter)
         item.setTextAlignment(2,Qt.AlignHCenter)
-        item.setTextAlignment(3,Qt.AlignLeft)   
-        item.setTextAlignment(4,Qt.AlignLeft)   
-        item.setTextAlignment(5,Qt.AlignLeft)   
+        item.setTextAlignment(3,Qt.AlignLeft)
+        item.setTextAlignment(4,Qt.AlignLeft)
+        item.setTextAlignment(5,Qt.AlignLeft)
 
     def addPackage(self, array) :
         q = QtGui.QTreeWidgetItem()
@@ -32,7 +32,7 @@ class PakkornMainWindowBase(QtGui.QMainWindow, ui_pakkorn.Ui_Pakkorn):
         self.setItemAlignement(q)
 
         self.detailWidget.insertTopLevelItem(0,q)
-        
+
     def addCategorie(self, categorie) :
         item = QtGui.QListWidgetItem()
         item.setText(categorie)
@@ -42,8 +42,8 @@ class PakkornMainWindowTest(PakkornMainWindowBase):
     def __init__(self, parent=None):
         super(PakkornMainWindowTest, self).__init__(parent)
 
-        QtCore.QObject.connect(self.categoriesWidget,QtCore.SIGNAL("itemSelectionChanged()"),self.onCategorieChanged)
-        QtCore.QObject.connect(self.push_update,QtCore.SIGNAL("clicked()"),self.onUpdate)
+        QtCore.QObject.connect(self.categoriesWidget,QtCore.SIGNAL("itemSelectionChanged()"),self.on_categorie_changed)
+        QtCore.QObject.connect(self.push_update,QtCore.SIGNAL("clicked()"),self.on_action_update)
 
         self.addCategorie("Type :: Audio :: Editor")
         self.addCategorie("Type :: Video :: Editor")
@@ -55,15 +55,14 @@ class PakkornMainWindowTest(PakkornMainWindowBase):
         self.addCategorie("License :: Shareware")
 
 
-    def onCategorieChanged(self) :
+    def on_categorie_changed(self) :
         self.detailWidget.clear()
         self.addPackage("I/D/L/totalcommander/Total Commander/7.02a".split("/"))
         self.addPackage("/D//totalcommander/Total Commander/7.01".split("/"))
         self.addPackage("I///gimp/The Gimp/4.2.1".split("/"))
-        
-    def onUpdate(self) :
-        self.addPackage("//L/gimp/The Gimp/4.2.2".split("/"))
 
+    def on_action_update(self) :
+        self.addPackage("//L/gimp/The Gimp/4.2.2".split("/"))
 
 def create_application(WindowClass):
     import sys

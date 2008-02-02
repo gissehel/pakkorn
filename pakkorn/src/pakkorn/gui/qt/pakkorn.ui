@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>693</width>
-    <height>317</height>
+    <width>737</width>
+    <height>411</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -224,7 +224,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>693</width>
+     <width>737</width>
      <height>19</height>
     </rect>
    </property>
@@ -308,12 +308,12 @@
    <slot>repaint()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>143</x>
-     <y>356</y>
+     <x>150</x>
+     <y>254</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>275</x>
-     <y>372</y>
+     <x>233</x>
+     <y>37</y>
     </hint>
    </hints>
   </connection>
@@ -324,28 +324,12 @@
    <slot>update()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>343</x>
-     <y>681</y>
+     <x>570</x>
+     <y>381</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>275</x>
-     <y>372</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>searchFilter</sender>
-   <signal>editTextChanged(QString)</signal>
-   <receiver>Pakkorn</receiver>
-   <slot>showMinimized()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>142</x>
-     <y>62</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>350</x>
-     <y>181</y>
+     <x>373</x>
+     <y>303</y>
     </hint>
    </hints>
   </connection>

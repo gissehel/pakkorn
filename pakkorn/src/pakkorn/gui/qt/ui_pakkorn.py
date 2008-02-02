@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'pakkorn.ui'
+# Form implementation generated from reading ui file 'C:\home\dev\eclipse\workspace-3.3\pakkorn3\src\pakkorn\gui\qt\pakkorn.ui'
 #
-# Created: Sun Jan 27 15:33:32 2008
+# Created: Sat Feb 02 20:08:48 2008
 #      by: PyQt4 UI code generator 4.3.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Pakkorn(object):
     def setupUi(self, Pakkorn):
         Pakkorn.setObjectName("Pakkorn")
-        Pakkorn.resize(QtCore.QSize(QtCore.QRect(0,0,693,317).size()).expandedTo(Pakkorn.minimumSizeHint()))
+        Pakkorn.resize(QtCore.QSize(QtCore.QRect(0,0,737,411).size()).expandedTo(Pakkorn.minimumSizeHint()))
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(5))
         sizePolicy.setHorizontalStretch(1)
@@ -111,7 +111,7 @@ class Ui_Pakkorn(object):
         Pakkorn.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(Pakkorn)
-        self.menubar.setGeometry(QtCore.QRect(0,0,693,19))
+        self.menubar.setGeometry(QtCore.QRect(0,0,737,19))
         self.menubar.setFocusPolicy(QtCore.Qt.TabFocus)
         self.menubar.setObjectName("menubar")
 
@@ -166,7 +166,6 @@ class Ui_Pakkorn(object):
         self.retranslateUi(Pakkorn)
         QtCore.QObject.connect(self.categoriesWidget,QtCore.SIGNAL("itemSelectionChanged()"),Pakkorn.repaint)
         QtCore.QObject.connect(self.push_update,QtCore.SIGNAL("clicked()"),Pakkorn.update)
-        QtCore.QObject.connect(self.searchFilter,QtCore.SIGNAL("editTextChanged(QString)"),Pakkorn.showMinimized)
         QtCore.QMetaObject.connectSlotsByName(Pakkorn)
 
     def retranslateUi(self, Pakkorn):

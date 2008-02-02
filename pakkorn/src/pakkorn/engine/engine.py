@@ -10,6 +10,35 @@ import re
 
 RE_VARIABLE = re.compile(r'\$\{(.*?)\}')
 
+class Event(object) :
+    def __init__(self) :
+        self._callables = []
+
+    def register(self,callable) :
+        self._callables.append(callable)
+
+    def unregister(self,callable) :
+        try :
+            pos = self._callables.index(callable)
+            del self._callables[pos]
+        except ValueError :
+            pass
+
+    def fire(self,*args,**kwargs) :
+        for callable in self._callables :
+            callable(*args,**kwargs)
+
+    def __iadd__(self,callable) :
+        self.register(callable)
+        return self
+
+    def __isub__(self,callable) :
+        self.unregister(callable)
+        return self
+
+    def __call__(self,*args,**kwargs) :
+        return self.fire(*args,**kwargs)
+
 class Error(object) :
     NO_PACKAGE_FOUND = "No package found"
     TOO_MANY_PACKAGES_FOUND = "Too many packages found"
@@ -22,6 +51,14 @@ class Engine(object) :
 
     def __init__(self,config) :
         self._config = config
+
+        self.event_error = Event()
+        self.event_error += self.print_error
+        self.event_downloading = Event()
+        self.event_installing = Event()
+        self.event_uninstalling = Event()
+        self.event_updating = Event()
+
         self._working_dir = os.path.join(self._config['userdatapath'])
 
         self._database_dir = os.path.join(self._working_dir,'base')
@@ -87,17 +124,21 @@ class Engine(object) :
 
         return self._database().search(multifilters)
 
+    def get_packages_by_package_param(self,package_param) :
+        multifilters = MultiFilters(lastcatalog=True)
+        if 'idproj' in package_param :
+            multifilters.add_filter(idproj=package_param['idproj'])
+        if 'version' in package_param :
+            multifilters.add_filter(version=package_param['version'])
+        sub_packages = list(self._database().search(multifilters))
+        return sub_packages
+
     def do_commands_name(self,commands_name,*package_params) :
         '''used for commands_name="install" or commands_name="uninstall" '''
 
         packages = []
         for package_param in package_params :
-            multifilters = MultiFilters(lastcatalog=True)
-            if 'idproj' in package_param :
-                multifilters.add_filter(idproj=package_param['idproj'])
-            if 'version' in package_param :
-                multifilters.add_filter(version=package_param['version'])
-            sub_packages = list(self._database().search(multifilters))
+            sub_packages = self.get_packages_by_package_param(package_param)
             if len(sub_packages) == 0 :
                return "No package found for %s version %s" % (package_param.get('idproj','?'),package_param.get('version','?'))
             elif len(sub_packages) > 1 :
@@ -123,6 +164,10 @@ class Engine(object) :
             if error is None :
                 items = self._get_item_informations(usage=commands_name,*packages)
                 for package in packages :
+                    if commands_name == 'install' :
+                        self.event_installing(idproj=package.get_idproj())
+                    elif commands_name == 'uninstall' :
+                        self.event_uninstalling(idproj=package.get_idproj())
                     if not(self._exec_commands(commands_name,package,items)) :
                         error = "Can't %s %s version %s" % (commands_name,package.get_idproj(),package.get_version())
                         break
@@ -133,6 +178,9 @@ class Engine(object) :
         usage = kwargs.get('usage',None)
         items = self._get_item_informations(usage=usage,*packages)
         download_ids = {}
+
+        #TODO : fire event downloading
+        self.event_downloading(idproj='...')
 
         for packagekey in items :
             for itemname in items[packagekey] :
@@ -147,6 +195,7 @@ class Engine(object) :
                 shutil.move(filename,items[packagekey][itemname]['itemfilename'])
 
         self._web_downloader.clean()
+
 
         error = None
 
@@ -337,7 +386,7 @@ class Engine(object) :
 
                 if self._reference_problem :
                     # TODO : Add the package from the previous aggregation with a special property
-                    self.log("There is a problem in the package '%s' : package not added" % (idproj,))
+                    self.event_error("There is a problem in the package '%s' : package not added" % (idproj,))
                 else :
                     new_catalog.add_package(new_package)
 
@@ -375,20 +424,23 @@ class Engine(object) :
                     else :
                         unreferenced_string = referencable_string.get_reference_container() % (values[0],)
                 else :
-                    self.log("No pattern '%s' found at '%s'" % (pattern,url))
+                    self.event_error("No pattern '%s' found at '%s'" % (pattern,url))
                     self._reference_problem = True
 
                 self._web_downloader.expire(url)
             else :
                 unreferenced_string = referencable_string.get_string()
         else :
-            self.log("Can't unreference None")
+            self.event_error("Can't unreference None")
             self._reference_problem = True
 
         return unreferenced_string
 
-    def log(self,message):
+    def print_error(self,message):
         print message
+
+    def unimplemented(self,message):
+        return self.event_error('unimplemented : ' + message)
 
     def _get_update_uri(self) :
         #Mok !
